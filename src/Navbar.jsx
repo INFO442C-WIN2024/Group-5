@@ -1,4 +1,7 @@
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 function Navbar() {
   const location = useLocation();
@@ -10,6 +13,20 @@ function Navbar() {
       ? `${baseClass} text-pink-200 scale-140`
       : `${baseClass} hover:text-pink-200`;
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User is logged in:", user);
+      } else {
+        console.log("User is logged out");
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <nav className="fixed w-full top-0 bg-gradient-to-r from-purple-800/90 to-pink-600/90 backdrop-blur-sm shadow-lg shadow-black/25 z-10">
