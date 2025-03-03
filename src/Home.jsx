@@ -24,6 +24,56 @@ function Home() {
       image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
     },
     // Add more mock cards here
+    {
+      name: "Jackson",
+      age: 19,
+      major: "Computer Science",
+      minor: "Mathematics",
+      gpa: "2.5",
+      campus: "Main Campus",
+      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
+      preferences: [
+        "Prefers evening study sessions",
+        "Library or quiet study spaces",
+        "Focuses on practice problems"
+      ],
+      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
+      image: "https://upload.wikimedia.org/wikipedia/commons/0/02/Hugh_Jackman_by_Gage_Skidmore_3.jpg"
+    },
+
+    {
+      name: "Jamie",
+      age: 20,
+      major: "Computer Science",
+      minor: "Mathematics",
+      gpa: "3.8",
+      campus: "Main Campus",
+      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
+      preferences: [
+        "Prefers evening study sessions",
+        "Library or quiet study spaces",
+        "Focuses on practice problems"
+      ],
+      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
+      image: "https://snworksceo.imgix.net/dth/e39edf84-9f8c-49b6-b69a-9d2a79f8a233.sized-1000x1000.jpg?w=1000"
+    },
+
+    {
+      name: "Sarah",
+      age: 20,
+      major: "Computer Science",
+      minor: "Mathematics",
+      gpa: "3.8",
+      campus: "Main Campus",
+      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
+      preferences: [
+        "Prefers evening study sessions",
+        "Library or quiet study spaces",
+        "Focuses on practice problems"
+      ],
+      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
+      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
+    },
   ];
 
   const handleSwipe = (direction) => {
