@@ -1,6 +1,6 @@
 function Profile() {
     return (
-      <div className = "min-h-screen pt-18 bg-gray-100"> 
+      <div className = "min-h-screen pt-18 bg-white"> 
       <div className="max-w-sm mx-auto p-4">
         <div className="lg:text-3xl text-sm mb-2 dark:text-white flex justify-center">
         <h1>Edit your Profile</h1>
@@ -10,7 +10,7 @@ function Profile() {
         <button className="mt-2 w-full bg-white rounded-lg shadow-md py-2 px-4 text-gray-700 font-medium flex items-center justify-center gap-2 hover:bg-gray-50">Upload a new photo</button>
       <div class="grid grid-cols-2 flex flex-col lg:flex-row gap-1 justify-center w-full text-sm">
           <div class="w-full  mb-2 mt-6"> 
-              <label for="" class="mb-2 dark:text-gray-300">Name</label>
+              <label for="" class="mb-2 bg-white">Name</label>
               <input type="text"
                       class="mt-2 p-2 w-full border rounded-lg dark:text-gray-200 border-gray-200 dark:bg-gray-800"
                       disabled="disabled" placeholder="Sarah"/>
