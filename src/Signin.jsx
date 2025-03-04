@@ -7,13 +7,11 @@ import './signin_style.css';
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert("Signed in successfully!");
@@ -25,38 +23,54 @@ const SignIn = () => {
   };
 
   return (
-    <div className="center-container">
-          <div className="sign-in-form">
-            <h1>Sign In</h1>
-            <form onSubmit={handleSubmit}>
-              <div>
-                <label>Email:</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-              <div>
-                <label>Password:</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
-
-              {error && <p style={{ color: "red" }}>{error}</p>} {}
-
-              <button type="submit">Sign In</button>
-            </form>
+    <div className="signin-container">
+      <div className="signin-card">
+        <h1 className="signin-title">Welcome Back</h1>
+        <p className="signin-subtitle">Sign in to continue</p>
+        
+        <form onSubmit={handleSubmit} className="signin-form">
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="signin-input"
+            />
           </div>
-        </div>
-      );
+
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+              className="signin-input"
+            />
+          </div>
+
+          {error && <p className="error-message">{error}</p>}
+
+          <button type="submit" className="signin-button">
+            Sign In
+          </button>
+
+          <p className="signup-link">
+            Don't have an account?{" "}
+            <a href="/signup" className="link">
+              Sign up
+            </a>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default SignIn;
