@@ -4,8 +4,10 @@ function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedCourses, setSelectedCourses] = useState([]);
 
-  // Mock data for cards
+
   const cards = [
     {
       name: "Sarah",
@@ -76,6 +78,16 @@ function Home() {
     },
   ];
 
+  // This will get all the courses from all the cards
+  const allCourses = [...new Set(cards.flatMap(card => card.courses))];
+
+  // Will fitler based on selected courses
+  const filteredCards = selectedCourses.length > 0
+    ? cards.filter(card => 
+        card.courses.some(course => selectedCourses.includes(course))
+      )
+    : cards;
+
   const handleSwipe = (direction) => {
     if (isAnimating) return;
     
@@ -108,12 +120,26 @@ function Home() {
     return baseStyle;
   };
 
+  const handleFilterToggle = () => {
+    setShowFilterModal(!showFilterModal);
+  };
+
+  const handleCourseToggle = (course) => {
+    setSelectedCourses(prev => 
+      prev.includes(course)
+        ? prev.filter(c => c !== course)
+        : [...prev, course]
+    );
+  };
+
   return (
     <div className="min-h-screen pt-20 bg-gray-100">
       <div className="max-w-md mx-auto p-4">
-        {/* Filters Button */}
         <div className="mb-4">
-          <button className="w-full bg-white rounded-lg shadow-md py-2 px-4 text-gray-700 font-medium flex items-center justify-center gap-2 hover:bg-gray-50">
+          <button 
+            onClick={handleFilterToggle}
+            className="w-full bg-white rounded-lg shadow-md py-2 px-4 text-gray-700 font-medium flex items-center justify-center gap-2 hover:bg-gray-50"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -132,9 +158,58 @@ function Home() {
           </button>
         </div>
 
+        {/* Filter Modal */}
+        {showFilterModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Filter by Courses</h2>
+                <button 
+                  onClick={handleFilterToggle}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {allCourses.map((course) => (
+                  <label key={course} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCourses.includes(course)}
+                      onChange={() => handleCourseToggle(course)}
+                      className="rounded text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-gray-700">{course}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="mt-4 flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    setSelectedCourses([]);
+                    setShowFilterModal(false);
+                  }}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Clear All
+                </button>
+                <button
+                  onClick={handleFilterToggle}
+                  className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Card Stack */}
         <div className="relative h-[600px]">
-          {cards.map((card, index) => (
+          {filteredCards.map((card, index) => (
             <div
               key={index}
               style={getCardStyle(index)}
@@ -188,7 +263,6 @@ function Home() {
                 </div>
               </div>
 
-              {/* Study Preferences */}
               <div className="p-4 border-b">
                 <h3 className="font-semibold text-gray-900 mb-2">Study Preferences</h3>
                 <div className="space-y-2">
