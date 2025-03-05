@@ -1,99 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { db } from './firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 function Home() {
+  const [profiles, setProfiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState('');
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState([]);
 
+  // Fetching user profiles from firestore
+  useEffect(() => {
+    const fetchProfiles = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, "profiles"));
+            const profilesData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setProfiles(profilesData);
+        } catch (error) {
+            console.error("Error fetching profiles:", error);
+        }
+    };
 
-  const cards = [
-    {
-      name: "Sarah",
-      age: 20,
-      major: "Computer Science",
-      minor: "Mathematics",
-      gpa: "3.8",
-      campus: "Main Campus",
-      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
-      preferences: [
-        "Prefers evening study sessions",
-        "Library or quiet study spaces",
-        "Focuses on practice problems"
-      ],
-      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
-      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
-    },
-    // Add more mock cards here
-    {
-      name: "Jackson",
-      age: 19,
-      major: "Computer Science",
-      minor: "Mathematics",
-      gpa: "2.5",
-      campus: "Main Campus",
-      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
-      preferences: [
-        "Prefers evening study sessions",
-        "Library or quiet study spaces",
-        "Focuses on practice problems"
-      ],
-      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/0/02/Hugh_Jackman_by_Gage_Skidmore_3.jpg"
-    },
-
-    {
-      name: "Jamie",
-      age: 20,
-      major: "Computer Science",
-      minor: "Mathematics",
-      gpa: "3.8",
-      campus: "Main Campus",
-      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
-      preferences: [
-        "Prefers evening study sessions",
-        "Library or quiet study spaces",
-        "Focuses on practice problems"
-      ],
-      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
-      image: "https://snworksceo.imgix.net/dth/e39edf84-9f8c-49b6-b69a-9d2a79f8a233.sized-1000x1000.jpg?w=1000"
-    },
-
-    {
-      name: "Sarah",
-      age: 20,
-      major: "Computer Science",
-      minor: "Mathematics",
-      gpa: "3.8",
-      campus: "Main Campus",
-      courses: ["CS 401 - Advanced Algorithms", "MATH 301 - Linear Algebra", "CS 380 - Database Systems"],
-      preferences: [
-        "Prefers evening study sessions",
-        "Library or quiet study spaces",
-        "Focuses on practice problems"
-      ],
-      bio: "Looking for motivated study partners who are interested in algorithm optimization and machine learning. I'm particularly strong in mathematics and can help with calculus and linear algebra concepts.",
-      image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
-    },
-  ];
+    fetchProfiles();
+}, []);
 
   // This will get all the courses from all the cards
-  const allCourses = [...new Set(cards.flatMap(card => card.courses))];
+  const allCourses = [...new Set(profiles.flatMap(profile => profile.courses))];
 
   // Will fitler based on selected courses
-  const filteredCards = selectedCourses.length > 0
-    ? cards.filter(card => 
-        card.courses.some(course => selectedCourses.includes(course))
-      )
-    : cards;
+  const filteredProfiles = selectedCourses.length > 0
+        ? profiles.filter(profile => profile.courses.some(course => selectedCourses.includes(course)))
+        : profiles;
 
   const handleSwipe = (direction) => {
     if (isAnimating) return;
-    
     setIsAnimating(true);
     setDirection(direction);
-    
     setTimeout(() => {
       setCurrentIndex(prev => prev + 1);
       setDirection('');
@@ -103,20 +49,17 @@ function Home() {
 
   const getCardStyle = (index) => {
     if (index !== currentIndex) return { display: 'none' };
-    
     const baseStyle = {
       position: 'absolute',
       width: '100%',
       transition: 'transform 0.3s ease-out',
       transform: 'translateX(0)',
     };
-
     if (direction === 'left') {
       baseStyle.transform = 'translateX(-150%)';
     } else if (direction === 'right') {
       baseStyle.transform = 'translateX(150%)';
     }
-
     return baseStyle;
   };
 
@@ -158,12 +101,11 @@ function Home() {
           </button>
         </div>
 
-        {/* Filter Modal */}
         {showFilterModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Filter by Courses</h2>
+                <h2 className="text-xl font-bold">Filter by the Course You're Looking For!</h2>
                 <button 
                   onClick={handleFilterToggle}
                   className="text-gray-500 hover:text-gray-700"
@@ -207,28 +149,18 @@ function Home() {
           </div>
         )}
 
-        {/* Card Stack */}
         <div className="relative h-[600px]">
-          {filteredCards.map((card, index) => (
-            <div
-              key={index}
-              style={getCardStyle(index)}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden"
-            >
-              {/* Profile Header */}
+          {filteredProfiles.map((card, index) => (
+            <div key={index} style={getCardStyle(index)}
+              className="bg-white rounded-2xl shadow-xl overflow-hidden">
               <div className="relative aspect-[4/3]">
-                <img
-                  src={card.image}
-                  alt={`${card.name} studying`}
-                  className="w-full h-full object-cover"
-                />
+                <img src={card.image} alt={`${card.name} studying`} className="w-full h-full object-cover"/>
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                   <h2 className="text-2xl font-bold text-white">{card.name}, {card.age}</h2>
                   <p className="text-gray-200">{card.major} • Junior</p>
                 </div>
               </div>
 
-              {/* Academic Info */}
               <div className="p-4 border-b">
                 <h3 className="font-semibold text-gray-900 mb-2">Academic Profile</h3>
                 <div className="grid grid-cols-2 gap-4">
@@ -251,7 +183,6 @@ function Home() {
                 </div>
               </div>
 
-              {/* Current Courses */}
               <div className="p-4 border-b">
                 <h3 className="font-semibold text-gray-900 mb-2">Looking for Study Partners in</h3>
                 <div className="flex flex-wrap gap-2">
@@ -277,13 +208,11 @@ function Home() {
                 </div>
               </div>
 
-              {/* Bio */}
               <div className="p-4 border-b">
                 <h3 className="font-semibold text-gray-900 mb-2">About</h3>
-                <p className="text-gray-600">{card.bio}</p>
+                <p className="text-gray-600">{card.about}</p>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex justify-center gap-6 p-4">
                 <button 
                   onClick={() => handleSwipe('left')}
@@ -295,7 +224,7 @@ function Home() {
                   onClick={() => handleSwipe('right')}
                   className="w-14 h-14 flex items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 hover:scale-110 transition-transform"
                 >
-                  <span className="text-green-500 text-3xl">♥</span>
+                  <span className="text-green-500 text-3xl">✓</span>
                 </button>
               </div>
             </div>
