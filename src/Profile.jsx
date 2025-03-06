@@ -137,7 +137,7 @@ function Profile() {
           </div>
 
           <div className="mt-4">
-            <label className="block text-gray-700 font-semibold mb-1">Courses (ex: INFO442, INFO340, ...)</label>
+            <label className="block text-gray-700 font-semibold mb-1">Current Courses (ex: INFO442, INFO340, ...)</label>
             <input type="text" name="courses" value={profile.courses.join(", ")} onChange={handleCoursesChange} disabled={!isEditing}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
           </div>
