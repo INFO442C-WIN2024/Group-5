@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
-import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
+
+import { auth } from "@/app/firebase/config";
 
 interface UserProfile {
   uid: string;
@@ -41,12 +42,14 @@ const CourseSelector = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.getElementById("course-dropdown");
+
       if (dropdown && !dropdown.contains(event.target as Node)) {
         setDropdownOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -66,7 +69,14 @@ const CourseSelector = ({
     <div className="relative">
       <div className="relative">
         <Input
+          className="w-full"
+          disabled={courses.length === 0}
           label="Course"
+          placeholder={
+            courses.length === 0
+              ? "Loading courses..."
+              : "Search for a course (e.g., CSE 142, Computer Programming)"
+          }
           value={search || value}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -74,29 +84,22 @@ const CourseSelector = ({
             setDisplayLimit(50);
           }}
           onFocus={() => setDropdownOpen(true)}
-          placeholder={
-            courses.length === 0
-              ? "Loading courses..."
-              : "Search for a course (e.g., CSE 142, Computer Programming)"
-          }
-          disabled={courses.length === 0}
-          className="w-full"
         />
         {(search || value) && (
           <button
-            onClick={handleClear}
             className="absolute right-2 top-[38px] p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            onClick={handleClear}
           >
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
-              viewBox="0 0 20 20"
               fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                 clipRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                fillRule="evenodd"
               />
             </svg>
           </button>
@@ -104,20 +107,20 @@ const CourseSelector = ({
       </div>
       {dropdownOpen && (
         <div
-          id="course-dropdown"
           className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+          id="course-dropdown"
         >
           {filteredCourses.length > 0 ? (
             <>
               {filteredCourses.map((c) => (
                 <div
                   key={c.code}
+                  className="cursor-pointer p-2 hover:bg-gray-100"
                   onClick={() => {
                     onSelect(c);
                     setSearch("");
                     setDropdownOpen(false);
                   }}
-                  className="cursor-pointer p-2 hover:bg-gray-100"
                 >
                   <div className="font-medium">{c.code}</div>
                   <div className="text-sm text-gray-600">{c.name}</div>
@@ -177,6 +180,7 @@ export default function CreatePost() {
       const majorsRes = await fetch(
         `/api/majors?campus=${encodeURIComponent(campus)}&type=majors`
       );
+
       if (!majorsRes.ok)
         throw new Error(`Failed to fetch majors: ${majorsRes.statusText}`);
       const majorsData = await majorsRes.json();
@@ -186,12 +190,14 @@ export default function CreatePost() {
           name: name as string,
         })
       );
+
       setMajors(majorsList);
 
       // Fetch courses
       const coursesRes = await fetch(
         `/api/courses?campus=${encodeURIComponent(campus)}&type=courses`
       );
+
       if (!coursesRes.ok)
         throw new Error(`Failed to fetch courses: ${coursesRes.statusText}`);
       const coursesData = await coursesRes.json();
@@ -201,6 +207,7 @@ export default function CreatePost() {
         code,
         name: data["Course Name"] ? data["Course Name"] : code,
       }));
+
       setCourses(coursesList);
     } catch (error) {
       console.error("Failed to fetch program data:", error);
@@ -219,9 +226,11 @@ export default function CreatePost() {
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
+
       if (user) {
         const response = await fetch(`/api/firebase?uid=${user.uid}`);
         const data = await response.json();
+
         setCurrentUser({
           uid: user.uid,
           name: data.name,
@@ -229,6 +238,7 @@ export default function CreatePost() {
         });
       }
     };
+
     fetchUserData();
   }, []);
 
@@ -236,24 +246,21 @@ export default function CreatePost() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.getElementById("major-dropdown");
+
       if (dropdown && !dropdown.contains(event.target as Node)) {
         setIsMajorDropdownOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSubmitPost = async () => {
     if (!currentUser) return;
-    if (
-      !newPost.title ||
-      !newPost.content ||
-      !newPost.campus ||
-      !newPost.major
-    ) {
-      alert("Please fill in all required fields");
+    if (!newPost.title || !newPost.content) {
+      alert("Please fill in the title and content");
       return;
     }
 
@@ -270,9 +277,9 @@ export default function CreatePost() {
           userImage: currentUser.imageUrl,
           title: newPost.title,
           content: newPost.content,
-          campus: newPost.campus,
-          major: newPost.major,
-          course: newPost.course,
+          campus: newPost.campus || null,
+          major: newPost.major || null,
+          course: newPost.course || null,
           createdAt: Date.now(),
         }),
       });
@@ -289,27 +296,28 @@ export default function CreatePost() {
 
   return (
     <div className="min-h-screen p-8 max-w-2xl mx-auto">
-      <div className="p-6 rounded-lg bg-white/5 border border-white/10">
+      <div className="p-6 rounded-lg bg-white/5 border border-white/10 mb-10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Create a Post</h2>
           <Button
-            onClick={() => router.push("/dashboard")}
             className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+            onClick={() => router.push("/dashboard")}
           >
             Cancel
           </Button>
         </div>
         <div className="space-y-6">
           <Input
-            label="Title"
+            className="w-full"
+            label="Title *"
+            placeholder="What's on your mind?"
             value={newPost.title}
             onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-            placeholder="What's on your mind?"
-            className="w-full"
           />
 
-          {/* Campus Selection */}
+          {/* Campus Selection - Optional */}
           <select
+            className="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500 p-2"
             value={newPost.campus}
             onChange={(e) => {
               const selectedCampus = e.target.value;
@@ -324,50 +332,51 @@ export default function CreatePost() {
                 fetchProgramData(selectedCampus);
               }
             }}
-            className="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500 p-2"
           >
-            <option value="">Select Campus</option>
+            <option value="">Select Campus (Optional)</option>
             <option value="Seattle">Seattle</option>
             <option value="Bothell">Bothell</option>
             <option value="Tacoma">Tacoma</option>
           </select>
 
-          {/* Major Selection */}
+          {/* Major Selection - Optional */}
           <div className="relative">
             <div className="relative">
               <Input
-                label="Major"
+                className="w-full"
+                disabled={!newPost.campus || isLoadingData}
+                label="Major (Optional)"
+                placeholder={
+                  isLoadingData
+                    ? "Loading majors..."
+                    : "Search for your major (Optional)"
+                }
                 value={majorSearch}
                 onChange={(e) => {
                   setMajorSearch(e.target.value);
                   setIsMajorDropdownOpen(true);
                 }}
                 onFocus={() => setIsMajorDropdownOpen(true)}
-                placeholder={
-                  isLoadingData ? "Loading majors..." : "Search for your major"
-                }
-                disabled={!newPost.campus || isLoadingData}
-                className="w-full"
               />
               {(majorSearch || newPost.major) && (
                 <button
+                  className="absolute right-2 top-[38px] p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                   onClick={(e) => {
                     e.preventDefault();
                     setMajorSearch("");
                     setNewPost((prev) => ({ ...prev, major: "" }));
                   }}
-                  className="absolute right-2 top-[38px] p-1 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                 >
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
-                    viewBox="0 0 20 20"
                     fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                       clipRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      fillRule="evenodd"
                     />
                   </svg>
                 </button>
@@ -375,19 +384,19 @@ export default function CreatePost() {
             </div>
             {isMajorDropdownOpen && (
               <div
-                id="major-dropdown"
                 className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+                id="major-dropdown"
               >
                 {filteredMajors.length > 0 ? (
                   filteredMajors.map((m) => (
                     <div
                       key={m.code}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
                       onClick={() => {
                         setNewPost((prev) => ({ ...prev, major: m.code }));
                         setMajorSearch(m.name);
                         setIsMajorDropdownOpen(false);
                       }}
-                      className="cursor-pointer p-2 hover:bg-gray-100"
                     >
                       {m.name} ({m.code})
                     </div>
@@ -399,30 +408,37 @@ export default function CreatePost() {
             )}
           </div>
 
-          {/* Course Selection */}
-          <CourseSelector
-            courses={courses}
-            value={newPost.course}
-            onSelect={(selectedCourse) =>
-              setNewPost((prev) => ({ ...prev, course: selectedCourse.code }))
-            }
-          />
+          {/* Course Selection - Optional */}
+          <div className="mb-4">
+            <CourseSelector
+              courses={courses}
+              value={newPost.course}
+              onSelect={(selectedCourse) =>
+                setNewPost((prev) => ({ ...prev, course: selectedCourse.code }))
+              }
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Optional: Select a related course
+            </p>
+          </div>
 
           <Textarea
-            label="Content"
+            className="w-full"
+            label="Content *"
+            minRows={5}
+            placeholder="Share your thoughts..."
             value={newPost.content}
             onChange={(e) =>
               setNewPost({ ...newPost, content: e.target.value })
             }
-            placeholder="Share your thoughts..."
-            className="w-full"
-            minRows={5}
           />
 
+          <div className="text-sm text-gray-500 mb-4">* Required fields</div>
+
           <Button
-            onClick={handleSubmitPost}
-            disabled={isLoading}
             className="w-full bg-gradient-to-r from-[#4b2e83] to-[#85754d] text-white py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            disabled={isLoading || !newPost.title || !newPost.content}
+            onClick={handleSubmitPost}
           >
             {isLoading ? "Creating..." : "Create Post"}
           </Button>

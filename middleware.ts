@@ -1,52 +1,66 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Add paths that require authentication
-const protectedPaths = ["/dashboard", "/about"];
-// Add paths that are only for non-authenticated users
-const publicOnlyPaths = ["/", "/login", "/register"];
-// Add paths that don't require setup completion
-const setupExemptPaths = ["/setup"];
+// Define route groups
+const PUBLIC_ROUTES = new Set(["/", "/login", "/register"]);
+const PROTECTED_ROUTES = new Set(["/dashboard", "/about", "/setup"]);
+const STATIC_ROUTES = new Set([
+  "/favicon.ico",
+  "/_next",
+  "/api",
+  "/images",
+  "/assets",
+]);
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get("auth-token")?.value;
-  const setupComplete = request.cookies.get("setup-complete")?.value;
-  const path = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
-  // If user is not authenticated
-  if (!token) {
-    // If trying to access protected route, redirect to home
-    if (protectedPaths.includes(path)) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+  // Skip middleware for static files and API routes
+  if (
+    STATIC_ROUTES.has(pathname) ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next")
+  ) {
     return NextResponse.next();
   }
 
-  // If user is authenticated
+  const token = request.cookies.get("auth-token")?.value;
+  const setupComplete = request.cookies.get("setup-complete")?.value;
+
+  // User is authenticated
   if (token) {
-    // Redirect from public routes to dashboard
-    if (publicOnlyPaths.includes(path)) {
+    // Redirect from public routes to dashboard when authenticated
+    if (PUBLIC_ROUTES.has(pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    // If setup is not complete and trying to access any route except setup
-    if (!setupComplete && !setupExemptPaths.includes(path)) {
-      return NextResponse.redirect(new URL("/setup", request.url));
+    // Check setup status for protected routes
+    if (PROTECTED_ROUTES.has(pathname)) {
+      // Only redirect to setup if setup is not complete and trying to access dashboard or about
+      if (
+        setupComplete === "false" &&
+        pathname !== "/setup" &&
+        (pathname === "/dashboard" || pathname === "/about")
+      ) {
+        return NextResponse.redirect(new URL("/setup", request.url));
+      }
+      return NextResponse.next();
     }
+  }
+
+  // User is not authenticated
+  if (!token) {
+    // Allow access to public routes
+    if (PUBLIC_ROUTES.has(pathname)) {
+      return NextResponse.next();
+    }
+    // Redirect to login for protected routes
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   return NextResponse.next();
 }
 
-// Configure which paths the middleware should run on
 export const config = {
-  matcher: [
-    "/",
-    "/login",
-    "/register",
-    "/setup",
-    "/dashboard",
-    "/about",
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
