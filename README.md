@@ -5,6 +5,11 @@ Members: Sirak Yohannes, Aaron Jones, Christopher May Chen, Mykyta Lepikash, Sid
 Husky Connect is a website designed to connect UW students looking for study partners.
 We created this app to help students find the study help they need, and to help foster a positive, academic community for students.
 
+Our tech stack includes:
+HTML/CSS, JS, React for the draft
+NextJS, Tailwind, heroui, and Vercel for final styling and hosting
+Firebase for the backend
+
 Our final MVP product can be found here:
 https://husky-connect-h1tr.vercel.app/  
 
